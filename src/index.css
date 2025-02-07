@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.terminal {
+  @apply bg-black text-green-500 p-6 rounded font-mono;
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 25px;
+  background: #1a1a1a;
+  border-radius: 4px 4px 0 0;
+}
+
+.terminal::after {
+  content: "● ● ●";
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  color: #444;
+  letter-spacing: 2px;
+  font-size: 12px;
+}
+
+.terminal-content {
+  @apply mt-4;
+}
+
+.terminal-prompt::before {
+  content: "root@tech-innovator:~$ ";
+  @apply text-green-500;
+}
+
+.loading-bar {
+  @apply h-full bg-green-500;
+  animation: loading 2s ease-in-out forwards;
+  width: 0%;
+}
+
+@keyframes loading {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.ascii-art {
+  @apply font-mono whitespace-pre;
+  line-height: 1.2;
+}
+
+.cursor {
+  @apply inline-block w-2 h-4 bg-green-500;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.press-enter {
+  @apply text-green-500 animate-pulse text-sm mt-4;
+}
+
+.terminal-button {
+  @apply font-mono text-sm;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
