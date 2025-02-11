@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, KeyRound } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Contact from './components/Contact';
 import TechArsenal from './components/TechArsenal';
@@ -10,7 +10,6 @@ function App() {
   const [decryptedText, setDecryptedText] = useState('');
   const [encryptedText, setEncryptedText] = useState('');
   const [showName, setShowName] = useState(false);
-  const [waitingForEnter, setWaitingForEnter] = useState(false);
   const [decryptionComplete, setDecryptionComplete] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,24 +30,11 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-      setWaitingForEnter(true);
       setEncryptedText(generateEncryptedText());
     }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === 'Enter' && waitingForEnter) {
-        setWaitingForEnter(false);
-        startDecryption();
-      }
-    };
-
-    window.addEventListener('keypress', handleKeyPress);
-    return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [waitingForEnter]);
 
   useEffect(() => {
     if (showName) {
@@ -138,12 +124,20 @@ function App() {
           <div className="terminal">
             <div className="terminal-content">
               <p className="terminal-prompt"></p>
-              <p className="font-mono text-green-500 break-all text-sm sm:text-base">
+              <p className="font-mono text-green-500 break-words whitespace-pre-wrap text-sm sm:text-base">
                 {encryptedText || decryptedText}
                 <span className="cursor"></span>
               </p>
-              {waitingForEnter && (
-                <p className="press-enter text-xs sm:text-sm">Press Enter to continue...</p>
+              {!decryptionComplete && !showName && (
+                <motion.button
+                  onClick={startDecryption}
+                  className="mt-6 terminal-button flex items-center gap-2 px-4 py-2 border border-green-500 text-green-500 hover:bg-green-500/10 transition-all mx-auto"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <KeyRound className="w-4 h-4" />
+                  <span className="font-mono text-sm">Descriptografar</span>
+                </motion.button>
               )}
               {decryptionComplete && (
                 <div className="mt-4 space-y-2">
@@ -167,6 +161,14 @@ function App() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative">
+      {/* Menu overlay for mobile */}
+      {isMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 sm:hidden"
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
+      
       <AnimatePresence>
         {showMenu && (
           <motion.div
@@ -174,7 +176,7 @@ function App() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.3 }}
-            className="fixed top-4 left-4 z-10 w-auto sm:w-auto"
+            className="fixed top-4 left-4 z-30 w-auto sm:w-auto"
           >
             <motion.button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -197,7 +199,7 @@ function App() {
                   }}
                   className="mt-2 overflow-hidden w-48 sm:w-56"
                 >
-                  <div className="bg-black border border-green-500 py-1 sm:py-2">
+                  <div className="bg-black border border-green-500 py-1 sm:py-2 relative z-30">
                     {menuItems.map((item, index) => (
                       <motion.button
                         key={item.id}
@@ -233,7 +235,7 @@ function App() {
           </motion.div>
         )}
       </AnimatePresence>
-      <main className="flex-grow p-4 sm:p-6 md:p-8">
+      <main className="flex-grow p-4 sm:p-6 md:p-8 relative z-10 pt-20 sm:pt-4">
         <div className="max-w-4xl mx-auto">
           <pre className="ascii-art mb-4 sm:mb-6 md:mb-8 text-[0.5rem] sm:text-xs md:text-sm overflow-x-auto text-green-500 hidden sm:block">
             {asciiTitle}
